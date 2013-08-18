@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Demo: Module</title>
+	<style type="text/css">
+		.selected {
+			background-color: #ffc;
+		}
+	</style>
+</head>
+<body>
+	<div id="task_list">
+		<form method="get" action="#" data-action="tasks.add">
+			Task: <input type="text" name="task"> <button type="submit">Add</button>
+		</form>
+		<ol>
+			<li data-action="tasks.toggleSelection">Buy groceries <button data-action="tasks.remove">X</button></li>
+		</ol>
+	</div>
+	<script type="text/javascript" src="./js/dom_event_delegator-1.0.0/lib/dom/events/delegator.js"></script>
+	<script type="text/javascript" src="./js/hash-1.0.0/lib/hash.js"></script>
+	<script type="text/javascript" src="../lib/module.js"></script>
+	<script type="text/javascript" src="../lib/module/actions.js"></script>
+	<script type="text/javascript">
+		function TaskModule() {
+
+		}
+
+		TaskModule.prototype = new Module();
+
+		TaskModule.prototype._registerActions = function(actions) {
+			Module.prototype._registerActions.call(this, actions);
+
+			actions.click([
+				"remove",
+				"toggleSelection"
+			])
+			.submit("add");
+		};
+
+		TaskModule.prototype._registerOptions = function(options) {
+			Module.prototype._registerOptions.call(this, options);
+
+			options.merge({
+				actionPrefix: "tasks"
+			});
+		};
+
+		TaskModule.prototype.add = function(event, element, params) {
+			event.stop();
+			var form = element.form || element;
+			var task = form.elements.task.value;
+
+			if (/^\s*$/.test(task)) {
+				alert("Please enter a task");
+				form.elements.task.focus();
+			}
+
+			var item = document.createElement("li");
+			item.setAttribute("data-action", "toggleSelection");
+			item.innerHTML = task + ' <button type="button" data-action="' + this.options.actionPrefix + '.remove">X</button>';
+			this.element.getElementsByTagName("ol")[0].appendChild(item);
+		};
+
+		TaskModule.prototype.remove = function(event, element, params) {
+			if (confirm("Are you sure?")) {
+				element.parentNode.parentNode.removeChild(element.parentNode);
+			}
+		};
+
+		TaskModule.prototype.toggleSelection = function(event, element, params) {
+			element.className = (element.className === "selected") ? "" : "selected";
+		};
+
+		var tasks = new TaskModule();
+
+		tasks.init("task_list");
+	</script>
+</body>
+</html>
