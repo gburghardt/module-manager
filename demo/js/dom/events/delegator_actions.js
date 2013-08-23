@@ -1,8 +1,8 @@
-Module.Actions = function Actions() {
+dom.events.DelegatorActions = function DelegatorActions() {
 	this._map = {};
 };
 
-Module.Actions.prototype = {
+dom.events.DelegatorActions.prototype = {
 
 	_map: null,
 
