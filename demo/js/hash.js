@@ -10,6 +10,14 @@ function Hash(data) {
 }
 Hash.prototype = {
 
+	destructor: function destructor() {
+		for (var key in this) {
+			if (this.exists(key)) {
+				this[key] = null;
+			}
+		}
+	},
+
 	empty: function empty() {
 		var keys = this.keys(), i = 0, length = keys.length, key;
 

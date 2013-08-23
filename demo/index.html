@@ -55,12 +55,15 @@
 			if (/^\s*$/.test(task)) {
 				alert("Please enter a task");
 				form.elements.task.focus();
+				return;
 			}
 
 			var item = document.createElement("li");
 			item.setAttribute("data-action", "toggleSelection");
 			item.innerHTML = task + ' <button type="button" data-action="' + this.options.actionPrefix + '.remove">X</button>';
 			this.element.getElementsByTagName("ol")[0].appendChild(item);
+			form.elements.task.value = "";
+			form.elements.task.focus();
 		};
 
 		TaskModule.prototype.remove = function(event, element, params) {
@@ -76,6 +79,7 @@
 		var tasks = new TaskModule();
 
 		tasks.init("task_list");
+		tasks.focus();
 	</script>
 </body>
 </html>
