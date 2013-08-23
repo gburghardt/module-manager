@@ -18,6 +18,7 @@
 			<li data-action="tasks.toggleSelection">Buy groceries <button data-action="tasks.remove">X</button></li>
 		</ol>
 	</div>
+	<script type="text/javascript" src="./js/callbacks.js"></script>
 	<script type="text/javascript" src="./js/dom/events/delegator.js"></script>
 	<script type="text/javascript" src="./js/dom/events/delegator_actions.js"></script>
 	<script type="text/javascript" src="./js/hash.js"></script>
@@ -37,6 +38,26 @@
 				"toggleSelection"
 			])
 			.submit("add");
+		};
+
+		TaskModule.prototype._registerCallbacks = function(callbacks) {
+			callbacks.add("afterReady", "onReady");
+			callbacks.add("beforeAddTask", "onBeforeAddTask");
+			callbacks.add("afterAddTask", "onAfterAddTask");
+		};
+
+		TaskModule.prototype.onReady = function() {
+			console.info("Ready!");
+		};
+
+		TaskModule.prototype.onAfterAddTask = function(item, task) {
+			console.info("Task added!");
+			console.log({task: task, item: item});
+		};
+
+		TaskModule.prototype.onBeforeAddTask = function(item, task) {
+			console.info("Before task added!");
+			console.log({task: task, item: item});
 		};
 
 		TaskModule.prototype._registerOptions = function(options) {
@@ -61,9 +82,13 @@
 			var item = document.createElement("li");
 			item.setAttribute("data-action", "toggleSelection");
 			item.innerHTML = task + ' <button type="button" data-action="' + this.options.actionPrefix + '.remove">X</button>';
-			this.element.getElementsByTagName("ol")[0].appendChild(item);
-			form.elements.task.value = "";
-			form.elements.task.focus();
+
+			if (this.callbacks.execute("beforeAddTask", item, task)) {
+				this.element.getElementsByTagName("ol")[0].appendChild(item);
+				form.elements.task.value = "";
+				form.elements.task.focus();
+				this.callbacks.execute("afterAddTask", item, task);
+			}
 		};
 
 		TaskModule.prototype.remove = function(event, element, params) {
