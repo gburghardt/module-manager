@@ -18,92 +18,26 @@
 			<li data-action="tasks.toggleSelection">Buy groceries <button data-action="tasks.remove">X</button></li>
 		</ol>
 	</div>
+	<script type="text/javascript" src="./js/function.js"></script>
+	<script type="text/javascript" src="./js/object/utils.js"></script>
 	<script type="text/javascript" src="./js/callbacks.js"></script>
+	<script type="text/javascript" src="./js/callbacks/utils.js"></script>
 	<script type="text/javascript" src="./js/dom/events/delegator.js"></script>
 	<script type="text/javascript" src="./js/dom/events/delegator_actions.js"></script>
 	<script type="text/javascript" src="./js/hash.js"></script>
 	<script type="text/javascript" src="../lib/module.js"></script>
+	<script type="text/javascript" src="./js/app/task_module.js"></script>
 	<script type="text/javascript">
-		function TaskModule() {
-
-		}
-
-		TaskModule.prototype = new Module();
-
-		TaskModule.prototype._registerActions = function(actions) {
-			Module.prototype._registerActions.call(this, actions);
-
-			actions.click([
-				"remove",
-				"toggleSelection"
-			])
-			.submit("add");
-		};
-
-		TaskModule.prototype._registerCallbacks = function(callbacks) {
-			callbacks.add("afterReady", "onReady");
-			callbacks.add("beforeAddTask", "onBeforeAddTask");
-			callbacks.add("afterAddTask", "onAfterAddTask");
-		};
-
-		TaskModule.prototype.onReady = function() {
-			console.info("Ready!");
-		};
-
-		TaskModule.prototype.onAfterAddTask = function(item, task) {
-			console.info("Task added!");
-			console.log({task: task, item: item});
-		};
-
-		TaskModule.prototype.onBeforeAddTask = function(item, task) {
-			console.info("Before task added!");
-			console.log({task: task, item: item});
-		};
-
-		TaskModule.prototype._registerOptions = function(options) {
-			Module.prototype._registerOptions.call(this, options);
-
-			options.merge({
-				actionPrefix: "tasks"
-			});
-		};
-
-		TaskModule.prototype.add = function(event, element, params) {
-			event.stop();
-			var form = element.form || element;
-			var task = form.elements.task.value;
-
-			if (/^\s*$/.test(task)) {
-				alert("Please enter a task");
-				form.elements.task.focus();
-				return;
-			}
-
-			var item = document.createElement("li");
-			item.setAttribute("data-action", "toggleSelection");
-			item.innerHTML = task + ' <button type="button" data-action="' + this.options.actionPrefix + '.remove">X</button>';
-
-			if (this.callbacks.execute("beforeAddTask", item, task)) {
-				this.element.getElementsByTagName("ol")[0].appendChild(item);
-				form.elements.task.value = "";
-				form.elements.task.focus();
-				this.callbacks.execute("afterAddTask", item, task);
-			}
-		};
-
-		TaskModule.prototype.remove = function(event, element, params) {
-			if (confirm("Are you sure?")) {
-				element.parentNode.parentNode.removeChild(element.parentNode);
-			}
-		};
-
-		TaskModule.prototype.toggleSelection = function(event, element, params) {
-			element.className = (element.className === "selected") ? "" : "selected";
-		};
-
 		var tasks = new TaskModule();
 
+		var start = new Date();
+
 		tasks.init("task_list");
+		
+		var end = new Date();
+		
+		console.info("Init time: " + ((end.getTime() - start.getTime()) / 1000) + " seconds" );
+		
 		tasks.focus();
 	</script>
 </body>

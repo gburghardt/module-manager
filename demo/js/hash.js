@@ -10,6 +10,8 @@ function Hash(data) {
 }
 Hash.prototype = {
 
+	constructor: Hash,
+
 	destructor: function destructor() {
 		for (var key in this) {
 			if (this.exists(key)) {
@@ -90,23 +92,42 @@ Hash.prototype = {
 		return keys;
 	},
 
-	merge: function merge(overrides) {
+	merge: function merge(overrides, safe) {
 		if (!overrides) {
 			throw new Error("Missing required argument: overrides");
 		}
 
-		for (var key in overrides) {
+		var key, newValue, oldValue, i, length;
+
+		for (key in overrides) {
 			if (overrides.hasOwnProperty(key)) {
-				if (this[key] instanceof Hash && overrides[key] instanceof Object) {
-					this[key].merge(overrides[key]);
+				oldValue = this[key];
+				newValue = overrides[key];
+
+				if (!newValue) {
+					if (!this.exists(key) || !safe) {
+						this.set(key, newValue);
+					}
 				}
-				else {
+				else if (newValue.constructor === Array && oldValue && oldValue.constructor === Array && !this.isReserved(key)) {
+					for (i = 0, length = newValue.length; i < length; i++) {
+						oldValue.push(newValue[i]);
+					}
+				}
+				else if (oldValue && oldValue.constructor === Hash && !this.isReserved(key)) {
+					oldValue.merge(newValue);
+				}
+				else if (!this.exists(key) || !safe) {
 					this.set(key, overrides[key]);
 				}
 			}
 		}
 
 		return this;
+	},
+
+	safeMerge: function safeMerge(overrides) {
+		this.merge(overrides, true);
 	},
 
 	set: function set(key, value) {

@@ -1,41 +1,43 @@
-function Callbacks(context) {
+function Callbacks(context, types) {
 	if (context) {
-		this._context = context;
-		this._types = {};
+		this.context = context;
+		this.types = types || {};
 	}
 }
 
 Callbacks.prototype = {
 
-	_context: null,
+	context: null,
 
-	_types: null,
+	types: null,
 
 	add: function add(name, method) {
-		if (!this._types[name]) {
-			this._types[name] = [];
+		if (!this.types[name]) {
+			this.types[name] = [];
 		}
 
-		this._types[name].push(method);
+		this.types[name].push(method);
+
+		return this;
 	},
 
 	execute: function execute(name) {
-		if (!this._types[name]) {
+		if (!this.types[name]) {
 			return true;
 		}
 
-		var args = Array.prototype.splice.call(arguments, 1, arguments.length);
-		var method, i = 0, length = this._types[name].length;
+		var args = Array.prototype.slice.call(arguments, 1, arguments.length);
+		var method, i = 0, length = this.types[name].length;
 		var success = true;
 
 		for (i; i < length; i++) {
-			method = this._types[name][i];
+			method = this.types[name][i];
 
-			if (!this._context[method]) {
+			if (!this.context[method]) {
 				throw new Error("No callback method found: " + method);
 			}
 
-			if (this._context[method].apply(this._context, args) === false) {
+			if (this.context[method].apply(this.context, args) === false) {
 				success = false;
 				break;
 			}
@@ -45,18 +47,20 @@ Callbacks.prototype = {
 	},
 
 	remove: function remove(name, method) {
-		if (!this._types[name]) {
+		if (!this.types[name]) {
 			return;
 		}
 
-		var i = 0, length = this._types[name].length, m;
+		var i = 0, length = this.types[name].length, m;
 
 		for (i; i < length; i++) {
-			if (method === this._types[name][i]) {
-				this._types[name].splice(i, 1);
+			if (method === this.types[name][i]) {
+				this.types[name].splice(i, 1);
 				break;
 			}
 		}
+
+		return this;
 	}
 
 };
