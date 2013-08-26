@@ -1,0 +1,59 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Demo: Module Factory</title>
+	<style type="text/css">
+		.selected {
+			background-color: #ffc;
+		}
+	</style>
+</head>
+<body>
+	<div data-modules="TaskModule" data-module-options='{
+		"actionPrefix": "groceries"
+	}'>
+		<h1>Groceries</h1>
+		<form method="get" action="#" data-action="groceries.add">
+			To buy: <input type="text" name="task"> <button type="submit">Add</button>
+		</form>
+		<ol>
+			<li data-action="groceries.toggleSelection">Oranges <button data-action="groceries.remove">X</button></li>
+		</ol>
+	</div>
+
+	<div data-modules="TaskModule" data-module-options='{
+		"actionPrefix": "honeydo"
+	}'>
+		<h1>Things to do</h1>
+		<form method="get" action="#" data-action="honeydo.add">
+			To do: <input type="text" name="task"> <button type="submit">Add</button>
+		</form>
+		<ol>
+			<li data-action="honeydo.toggleSelection">Fix kitchen sink <button data-action="honeydo.remove">X</button></li>
+		</ol>
+	</div>
+
+	<script type="text/javascript" src="./js/function.js"></script>
+	<script type="text/javascript" src="./js/callbacks.js"></script>
+	<script type="text/javascript" src="./js/callbacks/utils.js"></script>
+	<script type="text/javascript" src="./js/dom/events/delegator.js"></script>
+	<script type="text/javascript" src="./js/hash.js"></script>
+	<script type="text/javascript" src="../lib/module.js"></script>
+	<script type="text/javascript" src="../lib/module/manager.js"></script>
+	<script type="text/javascript" src="../lib/module/factory.js"></script>
+	<script type="text/javascript" src="./js/app/task_module.js"></script>
+	<script type="text/javascript">
+		var app = {
+			moduleManager: null,
+
+			init: function() {
+				this.moduleManager = new Module.Manager()
+					.init(document.getElementsByTagName("html")[0]);
+			}
+		};
+
+		app.init();
+	</script>
+</body>
+</html>
