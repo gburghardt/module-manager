@@ -11,6 +11,7 @@
 		"inherit.js": "1.x",
 		"dom_event_delegator": "1.x",
 		"hash": "1.x",
-		"callbacks": "1.x"
+		"callbacks": "1.x",
+		"events": "1.x"
 	}
 }
