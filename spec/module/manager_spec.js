@@ -19,26 +19,26 @@ describe("Module", function() {
 			describe("to support Dependency Injection and Inversion of Control", function() {
 
 				it("does not instantiate a module factory if one already exists", function() {
-					this.manager.init(this.managerElement);
+					this.manager.init();
 					expect(this.manager.factory).toBe(this.factory);
 				});
 
 				it("does not instantiate a registry if one already exists", function() {
 					var registry = {};
 					this.manager.registry = registry;
-					this.manager.init(this.managerElement);
+					this.manager.init();
 					expect(this.manager.registry).toBe(registry);
 				});
 
 				it("does not instantiate a module groups object if one already exists", function() {
 					var groups = {};
 					this.manager.groups = groups;
-					this.manager.init(this.managerElement);
+					this.manager.init();
 					expect(this.manager.groups).toBe(groups);
 				});
 
 				it("sets Module.manager", function() {
-					this.manager.init(this.managerElement);
+					this.manager.init();
 					expect(Module.manager).toBe(this.manager);
 				});
 
@@ -62,7 +62,7 @@ describe("Module", function() {
 				this.managerElement = document.createElement("div");
 				this.module1 = new TestModule(0);
 				this.module2 = new TestModule(1);
-				this.manager.init(this.managerElement);
+				this.manager.init();
 				this.manager.registerModule("a", this.module1);
 				this.manager.registerModule("b", this.module2);
 			})
@@ -113,9 +113,9 @@ describe("Module", function() {
 					'<div data-modules="Bazzing"></div>'
 				].join("");
 
-				this.manager.init(this.managerElement);
+				this.manager.init();
 
-				var returnValue = this.manager.eagerLoadModules();
+				var returnValue = this.manager.eagerLoadModules(this.managerElement);
 
 				expect(returnValue).toBe(this.manager);
 				expect(this.manager.createModules).wasCalledWith(element.firstChild.childNodes[0]);
@@ -135,7 +135,7 @@ describe("Module", function() {
 				this.module = {
 					guid: _guid++
 				};
-				this.manager.init(this.managerElement);
+				this.manager.init();
 			});
 
 			it("registers a new module and adds it to a module group", function() {
@@ -188,7 +188,7 @@ describe("Module", function() {
 				this.module = {
 					guid: _guid++
 				};
-				this.manager.init(this.managerElement);
+				this.manager.init();
 			});
 
 			it("does nothing for modules without a guid", function() {
@@ -218,7 +218,7 @@ describe("Module", function() {
 
 			beforeEach(function() {
 				this.managerElement = document.createElement("div");
-				this.manager.init(this.managerElement);
+				this.manager.init();
 			});
 
 			it("throws an error if an element is not passed", function() {
