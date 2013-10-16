@@ -1,5 +1,5 @@
 {
-	"name": "module",
+	"name": "module_controller",
 	"description": "Module provides a controller layer to JavaScript applications utilizing HTML5 data attributes to truly decouple markup, style and behavior.",
 	"author": "Greg Burghardt <greg_burghardt@yahoo.com>",
 	"version": "1.0.0",
