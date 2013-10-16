@@ -1,7 +1,9 @@
 {
 	"name": "module",
 	"description": "Module provides a controller layer to JavaScript applications utilizing HTML5 data attributes to truly decouple markup, style and behavior.",
-	"author": "Greg Burghardt <greg_burghardt@yahoo.com>",
+	"authors": [
+		"Greg Burghardt <greg_burghardt@yahoo.com>"
+	],
 	"version": "1.0.0",
 	"license": "MIT",
 	"repository": { "type": "git", "url": "https://github.com/gburghardt/module.git" },
@@ -13,11 +15,11 @@
 		"lib/module/manager/sub_module_properties.js"
 	],
 	"dependencies": {
-		"inherit.js": "1.x",
-		"dom_event_delegator": "1.x",
-		"hash": "1.x",
-		"callbacks": "1.x",
-		"events": "1.x",
-		"element_store": "1.x"
+		"inherit.js": "1.0.0",
+		"dom_event_delegator": "1.1.1",
+		"hash": "1.0.1",
+		"callbacks": "1.0.0",
+		"events": "1.0.0",
+		"element_store": "1.0.0"
 	}
 }
