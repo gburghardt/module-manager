@@ -19,7 +19,10 @@
 		"dom_event_delegator": "1.1.1",
 		"hash": "1.0.1",
 		"callbacks": "1.0.0",
+		"cerealizer": "0.0.1",
 		"events": "1.0.0",
-		"element_store": "1.0.0"
+		"element_store": "1.0.0",
+        "mocking_bird":"0.0.1",
+		"reaper": "1.0.0"
 	}
 }
