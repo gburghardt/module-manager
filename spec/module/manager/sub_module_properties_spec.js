@@ -10,9 +10,17 @@ describe("SubModuleProperties", function() {
 
 			window.SpecFixtures = {
 				TestModule: function TestModule() {
+					this.options = {};
 				},
-				TestSubModule: function TestSubModule() {}
+				TestSubModule: function TestSubModule() {
+					this.options = {};
+				}
 			};
+
+			SpecFixtures.TestModule.prototype.init = function() {};
+			SpecFixtures.TestModule.prototype.setOptions = function() {};
+			SpecFixtures.TestSubModule.prototype.init = function() {};
+			SpecFixtures.TestSubModule.prototype.setOptions = function() {};
 
 			SpecFixtures.TestModule.manager = this.manager;
 
@@ -24,13 +32,7 @@ describe("SubModuleProperties", function() {
 
 			SpecFixtures.TestModule.prototype.manySubModules = [];
 
-			SpecFixtures.TestModule.prototype.init = function() {};
-
 			SpecFixtures.TestModule.include(Module.Manager.SubModuleProperties);
-
-			SpecFixtures.TestSubModule.prototype = {
-				init: function(element, options) {}
-			};
 		});
 
 		afterEach(function() {
@@ -44,7 +46,7 @@ describe("SubModuleProperties", function() {
 
 			expect(function() {
 				module._createSubModuleProperty();
-			}).toThrow("Missing required argument: name");
+			}).toThrow(new Error("Missing required argument: name"));
 		});
 
 		it("requires an element argument", function() {
@@ -52,7 +54,7 @@ describe("SubModuleProperties", function() {
 
 			expect(function() {
 				module._createSubModuleProperty("testing");
-			}).toThrow("Missing required argument: element");
+			}).toThrow(new Error("Missing required argument: element"));
 		});
 
 		it("requires the element only has one data-module value", function() {
@@ -62,7 +64,7 @@ describe("SubModuleProperties", function() {
 
 			expect(function() {
 				module._createSubModuleProperty("testing", element);
-			}).toThrow("Sub module elements cannot have more than one type specified in data-module");
+			}).toThrow(new Error("Sub module elements cannot have more than one type specified in data-module"));
 		});
 
 		it("sets a single instance property", function() {
@@ -74,11 +76,11 @@ describe("SubModuleProperties", function() {
 			this.element.appendChild(subModuleElement);
 
 			spyOn(subModule, "init");
-			spyOn(this.manager.factory, "createInstance").andReturn(subModule);
+			spyOn(this.manager, "createModule").and.returnValue(subModule);
 
 			module._createSubModuleProperty("test", subModuleElement);
 
-			expect(this.manager.factory.createInstance).wasCalledWith(subModuleElement, "SpecFixtures.TestSubModule", {});
+			expect(this.manager.createModule).toHaveBeenCalledWith(subModuleElement, "SpecFixtures.TestSubModule", {});
 			expect(module.test).toBe(subModule);
 		});
 
@@ -113,7 +115,7 @@ describe("SubModuleProperties", function() {
 
 			expect(function() {
 				module._createSubModuleProperty("test", subModuleElement);
-			}).toThrow("Error creating sub module. Property test already exists.");
+			}).toThrow(new Error("Error creating sub module. Property test already exists."));
 		});
 
 		it("throws an error when no property exists on the class prototype that is null or an Array", function() {
@@ -127,7 +129,7 @@ describe("SubModuleProperties", function() {
 
 			expect(function() {
 				module._createSubModuleProperty("manySubModules", subModuleElement);
-			}).toThrow("Cannot create module property manySubModules. Property is neither null nor an Array in the class Prototype.");
+			}).toThrow(new Error("Cannot create module property manySubModules. Property is neither null nor an Array in the class Prototype."));
 		});
 
 	});
@@ -148,6 +150,7 @@ describe("SubModuleProperties", function() {
 			window.SpecFixtures = {
 				TestModule: function TestModule(elementStore) {
 					this.elementStore = elementStore;
+					this.options = {};
 				},
 				SelectionModule: function SelectionModule() {},
 				AutoCompleterModule: function AutoCompleterModule() {}
@@ -171,14 +174,14 @@ describe("SubModuleProperties", function() {
 			];
 			var module = new SpecFixtures.TestModule(this.elementStore);
 			spyOn(module, "_createSubModuleProperty");
-			spyOn(this.elementStore, "getCollection").andReturn(elements);
+			spyOn(this.elementStore, "getCollection").and.returnValue(elements);
 
 			module.initSubModules();
 
-			expect(this.elementStore.getCollection).wasCalledWith("subModules");
-			expect(module._createSubModuleProperty).wasCalledWith("selection", elements[0]);
-			expect(module._createSubModuleProperty).wasCalledWith("autoCompleters", elements[1]);
-			expect(module._createSubModuleProperty).wasCalledWith("autoCompleters", elements[1]);
+			expect(this.elementStore.getCollection).toHaveBeenCalledWith("subModules");
+			expect(module._createSubModuleProperty).toHaveBeenCalledWith("selection", elements[0]);
+			expect(module._createSubModuleProperty).toHaveBeenCalledWith("autoCompleters", elements[1]);
+			expect(module._createSubModuleProperty).toHaveBeenCalledWith("autoCompleters", elements[1]);
 		});
 
 	});

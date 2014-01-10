@@ -77,9 +77,9 @@ describe("Module", function() {
 				expect(this.manager.registry).toBe(null);
 				expect(this.manager.factory).toBe(null);
 
-				expect(this.module1.destructor).wasNotCalled();
-				expect(this.module2.destructor).wasNotCalled();
-				expect(this.factory.destructor).wasNotCalled();
+				expect(this.module1.destructor).not.toHaveBeenCalled();
+				expect(this.module2.destructor).not.toHaveBeenCalled();
+				expect(this.factory.destructor).not.toHaveBeenCalled();
 			});
 
 			it("destroys the module factory and all registered modules", function() {
@@ -92,9 +92,9 @@ describe("Module", function() {
 				expect(this.manager.registry).toBe(null);
 				expect(this.manager.factory).toBe(null);
 
-				expect(this.module1.destructor).wasCalledWith(true);
-				expect(this.module2.destructor).wasCalledWith(true);
-				expect(this.factory.destructor).wasCalled();
+				expect(this.module1.destructor).toHaveBeenCalledWith(true);
+				expect(this.module2.destructor).toHaveBeenCalledWith(true);
+				expect(this.factory.destructor).toHaveBeenCalled();
 			});
 
 		});
@@ -118,10 +118,28 @@ describe("Module", function() {
 				var returnValue = this.manager.eagerLoadModules(this.managerElement);
 
 				expect(returnValue).toBe(this.manager);
-				expect(this.manager.createModules).wasCalledWith(element.firstChild.childNodes[0]);
-				expect(this.manager.createModules).wasCalledWith(element.firstChild.childNodes[1]);
-				expect(this.manager.createModules).wasCalledWith(element.childNodes[1]);
-				expect(this.manager.createModules).wasNotCalledWith(element.firstChild);
+				expect(this.manager.createModules).toHaveBeenCalledWith(element.firstChild.childNodes[0]);
+				expect(this.manager.createModules).toHaveBeenCalledWith(element.firstChild.childNodes[1]);
+				expect(this.manager.createModules).toHaveBeenCalledWith(element.childNodes[1]);
+				expect(this.manager.createModules).not.toHaveBeenCalledWith(element.firstChild);
+			});
+
+			it("does not call createModules() on elements with a data-module-lazyload attribute", function() {
+				spyOn(this.manager, "createModules");
+				var element = this.managerElement;
+
+				element.innerHTML = [
+					'<ol>',
+						'<li></li>',
+						'<li></li>',
+					'</ol>',
+					'<div data-modules="Bazzing" data-module-lazyload="mouseover"></div>'
+				].join("");
+
+				this.manager.init();
+				this.manager.eagerLoadModules(element);
+
+				expect(this.manager.createModules).not.toHaveBeenCalled();
 			});
 
 		});
@@ -153,7 +171,7 @@ describe("Module", function() {
 
 				expect(function() {
 					manager.registerModule("testing", module);
-				}).toThrow("Cannot register module testing without a guid property");
+				}).toThrow(new Error("Cannot register module testing without a guid property"));
 			});
 
 			it("throws an error if the module has an undefined guid", function() {
@@ -163,7 +181,7 @@ describe("Module", function() {
 
 				expect(function() {
 					manager.registerModule("testing", module);
-				}).toThrow("Cannot register module testing without a guid property");
+				}).toThrow(new Error("Cannot register module testing without a guid property"));
 			});
 
 			it("throws an error if the module has already been registered", function() {
@@ -174,7 +192,7 @@ describe("Module", function() {
 
 				expect(function() {
 					manager.registerModule("testing", module);
-				}).toThrow("Module " + module.guid + " has already been registered");
+				}).toThrow(new Error("Module " + module.guid + " has already been registered"));
 			});
 
 		});
@@ -226,11 +244,11 @@ describe("Module", function() {
 
 				expect(function() {
 					manager.createModules();
-				}).toThrow("Missing required argument: element");
+				}).toThrow(new Error("Missing required argument: element"));
 
 				expect(function() {
 					manager.createModules(null);
-				}).toThrow("Missing required argument: element");
+				}).toThrow(new Error("Missing required argument: element"));
 			});
 
 			it("throws an error if the data-modules attribute is missing", function() {
@@ -241,7 +259,7 @@ describe("Module", function() {
 
 				expect(function() {
 					manager.createModules(element);
-				}).toThrow("Missing required attribute data-modules on DIV.module#testing");
+				}).toThrow(new Error("Missing required attribute data-modules on DIV.module#testing"));
 			});
 
 			describe("when data-modules contains one module type", function() {
@@ -249,18 +267,23 @@ describe("Module", function() {
 				var _guid = 0;
 
 				beforeEach(function() {
-					this.module = { guid: _guid++ };
+					this.module = {
+						guid: _guid++,
+						init: function() {},
+						setOptions: function() {}
+					};
 					this.element = document.createElement("div");
 					this.element.setAttribute("data-modules", "SpecFixtures.Modules.TestModule");
 					this.factory = {
-						createInstance: function() {}
+						getInstance: function() {}
 					};
 					this.manager.factory = this.factory;
-					spyOn(this.factory, "createInstance").andReturn(this.module);
+					spyOn(this.factory, "getInstance").and.returnValue(this.module);
 					spyOn(this.manager, "registerModule");
-					spyOn(this.element, "getAttribute").andCallThrough();
-					spyOn(this.element, "setAttribute").andCallThrough();
-					spyOn(this.element, "removeAttribute").andCallThrough();
+					spyOn(this.manager, "createModule").and.callThrough();
+					spyOn(this.element, "getAttribute").and.callThrough();
+					spyOn(this.element, "setAttribute").and.callThrough();
+					spyOn(this.element, "removeAttribute").and.callThrough();
 				});
 
 				it("creates and registers a module", function() {
@@ -268,23 +291,26 @@ describe("Module", function() {
 
 					expect(this.element.getAttribute("data-module-options")).toBe(null);
 
-					expect(this.factory.createInstance)
-						.wasCalledWith(this.element, "SpecFixtures.Modules.TestModule", {});
+					expect(this.manager.createModule)
+						.toHaveBeenCalledWith(this.element, "SpecFixtures.Modules.TestModule", {}, true);
+
+					expect(this.factory.getInstance)
+						.toHaveBeenCalledWith("SpecFixtures.Modules.TestModule");
 
 					expect(this.manager.registerModule)
-						.wasCalledWith("SpecFixtures.Modules.TestModule", this.module);
+						.toHaveBeenCalledWith("SpecFixtures.Modules.TestModule", this.module);
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-module-options");
+						.toHaveBeenCalledWith("data-module-options");
 
 					expect(this.element.removeAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.setAttribute)
-						.wasCalledWith("data-modules-created", "SpecFixtures.Modules.TestModule");
+						.toHaveBeenCalledWith("data-modules-created", "SpecFixtures.Modules.TestModule");
 
 					expect(this.element.getAttribute("data-modules")).toBe(null);
 					expect(this.element.getAttribute("data-modules-created")).toEqual("SpecFixtures.Modules.TestModule");
@@ -295,23 +321,26 @@ describe("Module", function() {
 
 					this.manager.createModules(this.element);
 
-					expect(this.factory.createInstance)
-						.wasCalledWith(this.element, "SpecFixtures.Modules.TestModule", { foo: "bar" });
+					expect(this.manager.createModule)
+						.toHaveBeenCalledWith(this.element, "SpecFixtures.Modules.TestModule", { foo: "bar" }, true);
+
+					expect(this.factory.getInstance)
+						.toHaveBeenCalledWith("SpecFixtures.Modules.TestModule");
 
 					expect(this.manager.registerModule)
-						.wasCalledWith("SpecFixtures.Modules.TestModule", this.module);
+						.toHaveBeenCalledWith("SpecFixtures.Modules.TestModule", this.module);
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-module-options");
+						.toHaveBeenCalledWith("data-module-options");
 
 					expect(this.element.removeAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.setAttribute)
-						.wasCalledWith("data-modules-created", "SpecFixtures.Modules.TestModule");
+						.toHaveBeenCalledWith("data-modules-created", "SpecFixtures.Modules.TestModule");
 
 					expect(this.element.getAttribute("data-modules")).toBe(null);
 					expect(this.element.getAttribute("data-modules-created")).toEqual("SpecFixtures.Modules.TestModule");
@@ -324,18 +353,23 @@ describe("Module", function() {
 				var _guid = 0;
 
 				beforeEach(function() {
-					this.module = { guid: _guid++ };
+					this.module = {
+						guid: _guid++,
+						init: function() {},
+						setOptions: function() {}
+					};
 					this.element = document.createElement("div");
 					this.element.setAttribute("data-modules", "SpecFixtures.Modules.FooModule SpecFixtures.Modules.BarModule");
 					this.factory = {
-						createInstance: function() {}
+						getInstance: function() {}
 					};
 					this.manager.factory = this.factory;
-					spyOn(this.factory, "createInstance").andReturn(this.module);
+					spyOn(this.factory, "getInstance").and.returnValue(this.module);
 					spyOn(this.manager, "registerModule");
-					spyOn(this.element, "getAttribute").andCallThrough();
-					spyOn(this.element, "setAttribute").andCallThrough();
-					spyOn(this.element, "removeAttribute").andCallThrough();
+					spyOn(this.manager, "createModule").and.callThrough();
+					spyOn(this.element, "getAttribute").and.callThrough();
+					spyOn(this.element, "setAttribute").and.callThrough();
+					spyOn(this.element, "removeAttribute").and.callThrough();
 				});
 
 				it("creates and registers multiple modules", function() {
@@ -343,27 +377,27 @@ describe("Module", function() {
 
 					expect(this.element.getAttribute("data-module-options")).toBe(null);
 
-					expect(this.factory.createInstance)
-						.wasCalledWith(this.element, "SpecFixtures.Modules.FooModule", {});
-					expect(this.factory.createInstance)
-						.wasCalledWith(this.element, "SpecFixtures.Modules.BarModule", {});
+					expect(this.manager.createModule)
+						.toHaveBeenCalledWith(this.element, "SpecFixtures.Modules.FooModule", {}, true);
+					expect(this.manager.createModule)
+						.toHaveBeenCalledWith(this.element, "SpecFixtures.Modules.BarModule", {}, true);
 
 					expect(this.manager.registerModule)
-						.wasCalledWith("SpecFixtures.Modules.FooModule", this.module);
+						.toHaveBeenCalledWith("SpecFixtures.Modules.FooModule", this.module);
 					expect(this.manager.registerModule)
-						.wasCalledWith("SpecFixtures.Modules.BarModule", this.module);
+						.toHaveBeenCalledWith("SpecFixtures.Modules.BarModule", this.module);
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-module-options");
+						.toHaveBeenCalledWith("data-module-options");
 
 					expect(this.element.removeAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.setAttribute)
-						.wasCalledWith("data-modules-created", "SpecFixtures.Modules.FooModule SpecFixtures.Modules.BarModule");
+						.toHaveBeenCalledWith("data-modules-created", "SpecFixtures.Modules.FooModule SpecFixtures.Modules.BarModule");
 
 					expect(this.element.getAttribute("data-modules")).toBe(null);
 
@@ -386,27 +420,27 @@ describe("Module", function() {
 
 					expect(this.element.getAttribute("data-module-options")).toBe(json);
 
-					expect(this.factory.createInstance)
-						.wasCalledWith(this.element, "SpecFixtures.Modules.FooModule", options["SpecFixtures.Modules.FooModule"]);
-					expect(this.factory.createInstance)
-						.wasCalledWith(this.element, "SpecFixtures.Modules.BarModule", {});
+					expect(this.manager.createModule)
+						.toHaveBeenCalledWith(this.element, "SpecFixtures.Modules.FooModule", options["SpecFixtures.Modules.FooModule"], true);
+					expect(this.manager.createModule)
+						.toHaveBeenCalledWith(this.element, "SpecFixtures.Modules.BarModule", {}, true);
 
 					expect(this.manager.registerModule)
-						.wasCalledWith("SpecFixtures.Modules.FooModule", this.module);
+						.toHaveBeenCalledWith("SpecFixtures.Modules.FooModule", this.module);
 					expect(this.manager.registerModule)
-						.wasCalledWith("SpecFixtures.Modules.BarModule", this.module);
+						.toHaveBeenCalledWith("SpecFixtures.Modules.BarModule", this.module);
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.getAttribute)
-						.wasCalledWith("data-module-options");
+						.toHaveBeenCalledWith("data-module-options");
 
 					expect(this.element.removeAttribute)
-						.wasCalledWith("data-modules");
+						.toHaveBeenCalledWith("data-modules");
 
 					expect(this.element.setAttribute)
-						.wasCalledWith("data-modules-created", "SpecFixtures.Modules.FooModule SpecFixtures.Modules.BarModule");
+						.toHaveBeenCalledWith("data-modules-created", "SpecFixtures.Modules.FooModule SpecFixtures.Modules.BarModule");
 
 					expect(this.element.getAttribute("data-modules")).toBe(null);
 

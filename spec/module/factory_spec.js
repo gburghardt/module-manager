@@ -35,15 +35,15 @@ describe("Module", function() {
 
 				expect(function() {
 					factory.getInstance("9Lives");
-				}).toThrow("Cannot instantiate invalid type: 9Lives");
+				}).toThrow(new Error("Cannot instantiate invalid type: 9Lives"));
 
 				expect(function() {
 					factory.getInstance("$Test");
-				}).toThrow("Cannot instantiate invalid type: $Test");
+				}).toThrow(new Error("Cannot instantiate invalid type: $Test"));
 
 				expect(function() {
 					factory.getInstance("window.alert('Hacked!')");
-				}).toThrow("Cannot instantiate invalid type: window.alert('Hacked!')");
+				}).toThrow(new Error("Cannot instantiate invalid type: window.alert('Hacked!')"));
 			});
 
 			it("throws an error if a valid class name does not resolve to a class", function() {
@@ -51,7 +51,7 @@ describe("Module", function() {
 
 				expect(function() {
 					factory.getInstance("SpecFixtures.Modules");
-				}).toThrow("Class name SpecFixtures.Modules is not a constructor function");
+				}).toThrow(new Error("Class name SpecFixtures.Modules is not a constructor function"));
 			});
 
 			it("throws an error if the class does not exist", function() {
@@ -59,7 +59,7 @@ describe("Module", function() {
 
 				expect(function() {
 					factory.getInstance("I.Do.Not.Exist");
-				}).toThrow("Class name I.Do.Not.Exist does not exist");
+				}).toThrow(new Error("Class name I.Do.Not.Exist does not exist"));
 			});
 
 			it("throws an error if the class does not exist in the namespace", function() {
@@ -67,7 +67,7 @@ describe("Module", function() {
 
 				expect(function() {
 					factory.getInstance("SpecFixtures.Modules.BadModule");
-				}).toThrow("Class name SpecFixtures.Modules.BadModule does not exist");
+				}).toThrow(new Error("Class name SpecFixtures.Modules.BadModule does not exist"));
 			});
 
 			describe("in order to support Dependency Injection and Inversion of Control", function() {
@@ -81,22 +81,22 @@ describe("Module", function() {
 				});
 
 				it("returns a new module instance from an object factory", function() {
-					spyOn(this.objectFactory, "getInstance").andReturn(this.module);
+					spyOn(this.objectFactory, "getInstance").and.returnValue(this.module);
 					var instance = this.factory.getInstance("test");
 
-					expect(this.objectFactory.getInstance).wasCalledWith("test");
+					expect(this.objectFactory.getInstance).toHaveBeenCalledWith("test");
 					expect(instance).toBe(this.module);
 				});
 
 				it("throws an error if it fails to get a module instance from the object factory", function() {
-					spyOn(this.objectFactory, "getInstance").andReturn(null);
+					spyOn(this.objectFactory, "getInstance").and.returnValue(null);
 					var factory = this.factory;
-					
+
 					expect(function() {
 						factory.getInstance("test");
-					}).toThrow("The object factory failed to get a new instance for type: test");
+					}).toThrow(new Error("The object factory failed to get a new instance for type: test"));
 
-					expect(this.objectFactory.getInstance).wasCalledWith("test");
+					expect(this.objectFactory.getInstance).toHaveBeenCalledWith("test");
 				});
 
 			});
@@ -114,24 +114,24 @@ describe("Module", function() {
 			});
 
 			it("creates a new module instance and initializes it with the given element", function() {
-				spyOn(this.factory, "getInstance").andReturn(this.module);
+				spyOn(this.factory, "getInstance").and.returnValue(this.module);
 				spyOn(this.module, "init");
 
 				var instance = this.factory.createInstance(this.element, "test");
 
-				expect(this.factory.getInstance).wasCalledWith("test");
-				expect(this.module.init).wasCalledWith(this.element, undefined);
+				expect(this.factory.getInstance).toHaveBeenCalledWith("test");
+				expect(this.module.init).toHaveBeenCalledWith(this.element, undefined);
 				expect(instance).toBe(this.module);
 			});
 
 			it("creates a new module instance and initializes it with the given element and options", function() {
-				spyOn(this.factory, "getInstance").andReturn(this.module);
+				spyOn(this.factory, "getInstance").and.returnValue(this.module);
 				spyOn(this.module, "init");
 
 				var instance = this.factory.createInstance(this.element, "test", this.options);
 
-				expect(this.factory.getInstance).wasCalledWith("test");
-				expect(this.module.init).wasCalledWith(this.element, this.options);
+				expect(this.factory.getInstance).toHaveBeenCalledWith("test");
+				expect(this.module.init).toHaveBeenCalledWith(this.element, this.options);
 				expect(instance).toBe(this.module);
 			});
 
