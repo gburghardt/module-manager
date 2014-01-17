@@ -4,7 +4,7 @@
 	"authors": [
 		"Greg Burghardt <greg_burghardt@yahoo.com>"
 	],
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"license": "MIT",
 	"repository": { "type": "git", "url": "https://github.com/gburghardt/module.git" },
 	"main": [
@@ -12,7 +12,8 @@
 		"lib/module/factory.js",
 		"lib/module/manager.js",
 		"lib/module/manager/lazy_loader.js",
-		"lib/module/manager/sub_module_properties.js"
+		"lib/module/manager/sub_module_properties.js",
+		"lib/module/provider.js"
 	],
 	"dependencies": {
 		"inherit.js": "1.0.0",

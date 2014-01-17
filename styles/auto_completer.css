@@ -1,10 +1,10 @@
-.module-auto-completer {
+.module-autoCompleter {
 	border: 1px inset #ccc;
 	cursor: text;
 	padding: 2px;
 	position: relative;
 }
-.module-auto-completer.loading ol.module-autoCompleter-suggestions {
+.module-autoCompleter.loading ol.module-autoCompleter-suggestions {
 	opacity: .5;
 }
 .module-autoCompleter-destroyed-items {
