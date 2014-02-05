@@ -66,6 +66,7 @@ Now, the HTML and JavaScript to bootstrap everything:
         <script type="text/javascript" src="/path/to/module.js"></script>
         <script type="text/javascript" src="/path/to/module/factory.js"></script>
         <script type="text/javascript" src="/path/to/module/provider.js"></script>
+        <script type="text/javascript" src="/path/to/module/meta_data.js"></script>
         <script type="text/javascript" src="/path/to/module/manager.js"></script>
         <script type="text/javascript" src="/path/to/module/example_module.js"></script>
         <script type="text/javascript">
