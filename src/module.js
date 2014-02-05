@@ -14,7 +14,8 @@ var Module = Object.extend({
 
 	includes: [
 		Callbacks.Utils,
-		Events.Notifications,
+		Beacon.ApplicationEvents,
+		Beacon.Notifications,
 		ElementStore.Utils
 	],
 
