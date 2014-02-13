@@ -1,0 +1,201 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Demo: Dynamically Creating New Modules</title>
+	<style type="text/css">
+		.bucket {
+			background-color: #000;
+			padding: 1em;
+			float: left;
+			width: 400px;
+			height: 600px;
+			overflow: auto;
+			margin-right: 3em;
+		}
+		.module {
+			background-color: #f0f0f0;
+			border: 1px solid #ccc;
+			border-radius: 8px;
+			margin: 1em 0;
+			padding: 1em;
+		}
+		th {
+			text-align: right;
+		}
+		.foo {
+			background-color: #faa;
+		}
+	</style>
+</head>
+<body>
+	<p>Use the form below to create new modules on the fly.</p>
+
+	<p><a href="./index.html">Back</a></p>
+
+	<p>Container:
+		<select id="container">
+			<option value="1">Left</option>
+			<option value="2">Middle</option>
+			<option value="3">Right</option>
+		</select>
+	</p>
+
+	<p>
+		Template:
+		<select id="template">
+			<option value="1">Show Default Render Data</option>
+			<option value="2">Comment Form</option>
+		</select>
+	</p>
+
+	<p>
+		<button value="basic">Default</button> &mdash; Insert new module at the bottom of the container<br>
+		<button value="prepend">Prepend</button> &mdash; Insert new module at the top of the container<br>
+		<button value="customClassName">Custom Class Name</button> &mdash; Add a custom CSS class name to the root element<br>
+		<button value="customOverrides">Custom Render Data</button> &mdash; Non standard data for rendering<br>
+		<button value="autoFocus">Auto Focus</button> &mdash; Set focus to the newly created module
+	</p>
+
+	<div class="bucket" id="bucket-1"></div>
+	<div class="bucket" id="bucket-2"></div>
+	<div class="bucket" id="bucket-3"></div>
+
+	<script type="text/html" id="template-1">
+		<table>
+			<tbody>
+				<tr>
+					<th>guid</th>
+					<td>#{guid}</td>
+				</tr>
+				<tr>
+					<th>createdAt</th>
+					<td>#{createdAt}</td>
+				</tr>
+				<tr>
+					<th>timestamp</th>
+					<td>#{timestamp}</td>
+				</tr>
+				<tr>
+					<th>foo</th>
+					<td>#{foo}</td>
+				</tr>
+			</tbody>
+		</table>
+	</script>
+	<script type="text/html" id="template-2">
+		<p>
+			Email: <input name="post[comments][#{timestamp}][email]" type="text" size="50">
+		</p>
+		<p>
+			Comment: <br>
+			<textarea name="post[comments][#{timestamp}][comment]" cols="45" rows="3"></textarea>
+		</p>
+		<p>
+			<input name="post[comments][#{timestamp}][id]" type="hidden" value="">
+			<button>Submit</button>
+		</p>
+	</script>
+	<script type="text/html" id="template-3"></script>
+
+	<script type="text/javascript" src="../src/module.js"></script>
+	<script type="text/javascript" src="../src/module/factory.js"></script>
+	<script type="text/javascript" src="../src/module/manager.js"></script>
+	<script type="text/javascript" src="../src/module/lazy_loader.js"></script>
+	<script type="text/javascript" src="../src/module/meta_data.js"></script>
+	<script type="text/javascript" src="../src/module/provider.js"></script>
+	<script type="text/javascript" src="./modules/base_module.js"></script>
+	<script type="text/javascript">
+
+		// Create the module manager
+		var moduleManager = new Module.Manager()
+			.init()
+			.eagerLoadModules(document.documentElement);
+
+		var controller = {
+			_getContainer: function() {
+				var id = "bucket-" + document.getElementById("container").value,
+				    container = document.getElementById(id);
+
+				return container;
+			},
+			_getTemplate: function() {
+				var id = "template-" + document.getElementById("template").value,
+				    template = document.getElementById(id);
+
+				return template;
+			},
+			basic: function() {
+				var element = document.createElement("div"),
+				    container = this._getContainer(),
+				    template = this._getTemplate(),
+				    type = "BaseModule",
+				    config = {},
+				    module = moduleManager.createModule(element, type, {});
+
+				moduleManager.initModuleInContainer(element, container, config, template, type, module);
+			},
+			prepend: function() {
+				var element = document.createElement("div"),
+				    container = this._getContainer(),
+				    template = this._getTemplate(),
+				    type = "BaseModule",
+				    config = {
+				    	insert: "top"
+				    },
+				    module = moduleManager.createModule(element, type, {});
+
+				moduleManager.initModuleInContainer(element, container, config, template, type, module);
+			},
+			customClassName: function() {
+				var element = document.createElement("div"),
+				    container = this._getContainer(),
+				    template = this._getTemplate(),
+				    type = "BaseModule",
+				    config = {
+				    	className: "foo"
+				    },
+				    module = moduleManager.createModule(element, type, {});
+
+				moduleManager.initModuleInContainer(element, container, config, template, type, module);
+			},
+			customOverrides: function() {
+				var element = document.createElement("div"),
+				    container = this._getContainer(),
+				    template = this._getTemplate(),
+				    type = "BaseModule",
+				    config = {
+				    	renderData: {
+				    		timestamp: "000000000",
+				    		foo: "bar"
+				    	}
+				    },
+				    module = moduleManager.createModule(element, type, {});
+
+				moduleManager.initModuleInContainer(element, container, config, template, type, module);
+			},
+			autoFocus: function() {
+				var element = document.createElement("div"),
+				    container = this._getContainer(),
+				    template = this._getTemplate(),
+				    type = "BaseModule",
+				    config = {
+				    	autoFocus: true
+				    },
+				    module = moduleManager.createModule(element, type, {});
+
+				moduleManager.initModuleInContainer(element, container, config, template, type, module);
+			}
+		};
+
+		document.documentElement.addEventListener("click", function(event) {
+			event = event || window.event;
+
+			if (event.target.nodeName === "BUTTON") {
+				controller[event.target.value]();
+			}
+		});
+
+	</script>
+</body>
+</html>

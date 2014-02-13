@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Demo: Default Module</title>
+	<style type="text/css">
+		.module {
+			border: 1px solid #000;
+			border-radius: 8px;
+			margin: 1em 0;
+			padding: 1em;
+		}
+
+		.overlay {
+			position: absolute;
+			width: 200px;
+		}
+	</style>
+</head>
+<body>
+	<p>Default Module: The "Search" box gets focus on page load.</p>
+
+	<div data-modules="BaseModule" data-module-options='{ "defaultModule": true }'>
+		<p>
+			Search: <input type="text" />
+		</p>
+	</div>
+
+	<div data-modules="BaseModule">
+		<p>
+			Name: <input type="text" />
+		</p>
+		<p>
+			Address: <input type="text" />
+		</p>
+	</div>
+
+	<p><a href="./index.html">Back</a></p>
+
+	<script type="text/javascript" src="../src/module.js"></script>
+	<script type="text/javascript" src="../src/module/factory.js"></script>
+	<script type="text/javascript" src="../src/module/manager.js"></script>
+	<script type="text/javascript" src="../src/module/lazy_loader.js"></script>
+	<script type="text/javascript" src="../src/module/meta_data.js"></script>
+	<script type="text/javascript" src="../src/module/provider.js"></script>
+	<script type="text/javascript" src="./modules/base_module.js"></script>
+	<script type="text/javascript">
+
+		// Create the module manager
+		var moduleManager = new Module.Manager()
+			.init()
+			.eagerLoadModules(document.documentElement);
+
+		moduleManager.focusDefaultModule();
+
+	</script>
+</body>
+</html>

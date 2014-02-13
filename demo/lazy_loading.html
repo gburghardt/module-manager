@@ -1,0 +1,80 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Demo: Lazy Loading Modules</title>
+	<style type="text/css">
+		.module {
+			border: 1px solid #000;
+			border-radius: 8px;
+			margin: 1em 0;
+			padding: 1em;
+		}
+
+		.overlay {
+			position: absolute;
+			width: 200px;
+		}
+	</style>
+</head>
+<body>
+	<p>Lazy Loading Modules: Scroll, up, down and to the sides.</p>
+
+	<div data-modules="WelcomeModule" data-module-lazyload="mouseover" class="module">Loading... (until you hover over me)</div>
+
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 300px; left: 0;">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 300px; right: 0;">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 300px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 600px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 600px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 600px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 900px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 900px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 900px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1200px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1200px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1200px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1500px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1500px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1500px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1800px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1800px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 1800px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2100px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2100px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2100px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2400px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2400px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2400px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2700px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2700px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 2700px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3000px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3000px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3000px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3300px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3300px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3300px; left: 110%">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3600px; left: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3600px; right: 0">Loading...</div>
+	<div data-modules="WelcomeModule" data-module-lazyload="any" class="module overlay" style="top: 3600px; left: 110%">Loading...</div>
+
+	<p><a href="./index.html">Back</a></p>
+
+	<script type="text/javascript" src="../src/module.js"></script>
+	<script type="text/javascript" src="../src/module/factory.js"></script>
+	<script type="text/javascript" src="../src/module/manager.js"></script>
+	<script type="text/javascript" src="../src/module/lazy_loader.js"></script>
+	<script type="text/javascript" src="../src/module/meta_data.js"></script>
+	<script type="text/javascript" src="../src/module/provider.js"></script>
+	<script type="text/javascript" src="./modules/welcome_module.js"></script>
+	<script type="text/javascript">
+
+		// Create the module manager
+		var moduleManager = new Module.Manager()
+			.init()
+			.lazyLoadModules(document.documentElement);
+
+	</script>
+</body>
+</html>

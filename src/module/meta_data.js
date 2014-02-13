@@ -1,4 +1,4 @@
-(function() {
+(function(g) {
 
 	function MetaData(element) {
 		this.options = null;
@@ -12,6 +12,8 @@
 	MetaData.prototype = {
 
 		element: null,
+
+		media: null,
 
 		options: null,
 
@@ -39,12 +41,22 @@
 			}
 		},
 
+		mediaMatches: function mediaMatches() {
+			if (!g.matchMedia) {
+				throw new Error("This browser does not support JavaScript media queries. Please include a polyfill (https://github.com/paulirish/matchMedia.js)");
+			}
+
+			if (this.media)
+				console.info("Match media: " + this.media, g.matchMedia(this.media).matches);
+
+			return this.media === null || g.matchMedia(this.media).matches;
+		},
+
 		setElement: function setElement(element) {
 			this.element = element;
 
 			var types = element.getAttribute("data-modules"),
-			    options = element.getAttribute("data-module-options"),
-			    length;
+			    options = element.getAttribute("data-module-options");
 
 			if (!types) {
 				throw new Error("Missing required attribute data-modules on " + element.nodeName + "." + element.className.split(/\s+/g).join(".") + "#" + element.id);
@@ -55,10 +67,11 @@
 				.split(/\s+/g);
 
 			this.options = options ? JSON.parse(options) : {};
+			this.media = element.getAttribute("data-module-media");
 		}
 
 	};
 
-	Module.MetaData = MetaData;
+	g.Module.MetaData = MetaData;
 
-})(window.Module || {});
+})(this);

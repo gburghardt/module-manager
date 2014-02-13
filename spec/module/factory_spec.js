@@ -101,38 +101,4 @@ describe("Module.Factory", function() {
 
 	});
 
-	describe("createInstance", function() {
-
-		beforeEach(function() {
-			this.element = document.createElement("div");
-			this.options =  {};
-			this.module = {
-				init: function() {elementOrId, options}
-			};
-		});
-
-		it("creates a new module instance and initializes it with the given element", function() {
-			spyOn(this.factory, "getInstance").and.returnValue(this.module);
-			spyOn(this.module, "init");
-
-			var instance = this.factory.createInstance(this.element, "test");
-
-			expect(this.factory.getInstance).toHaveBeenCalledWith("test");
-			expect(this.module.init).toHaveBeenCalledWith(this.element, undefined);
-			expect(instance).toBe(this.module);
-		});
-
-		it("creates a new module instance and initializes it with the given element and options", function() {
-			spyOn(this.factory, "getInstance").and.returnValue(this.module);
-			spyOn(this.module, "init");
-
-			var instance = this.factory.createInstance(this.element, "test", this.options);
-
-			expect(this.factory.getInstance).toHaveBeenCalledWith("test");
-			expect(this.module.init).toHaveBeenCalledWith(this.element, this.options);
-			expect(instance).toBe(this.module);
-		});
-
-	});
-
 });
