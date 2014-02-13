@@ -118,7 +118,7 @@ Module.AutoCompleterModule = Module.extend({
 			}
 			else if (suggestion) {
 				suggestion.parentNode.removeChild(suggestion);
-				utils.removeClass(suggestion, this.options.selectedClass);
+				suggestion.classList.remove(this.options.selectedClass);
 				suggestion.removeAttribute("data-action");
 			}
 
@@ -341,15 +341,15 @@ Module.AutoCompleterModule = Module.extend({
 				}
 
 				if (suggestion && suggestion.getAttribute("data-action")) {
-					utils.removeClass(this.selectedSuggestion(), this.options.selectedClass);
-					utils.addClass(suggestion, this.options.selectedClass);
+					this.selectedSuggestion().classList.remove(this.options.selectedClass)
+					suggestion.classList.add(this.options.selectedClass);
 				}
 			}
 			else {
 				suggestion = this.firstSuggestion();
 
 				if (suggestion && suggestion.getAttribute("data-action")) {
-					utils.addClass(suggestion, this.options.selectedClass);
+					suggestion.classList.add(this.options.selectedClass);
 				}
 			}
 		},
@@ -367,8 +367,8 @@ Module.AutoCompleterModule = Module.extend({
 				}
 
 				if (suggestion && suggestion.getAttribute("data-action")) {
-					utils.removeClass(this.selectedSuggestion(), this.options.selectedClass);
-					utils.addClass(suggestion, this.options.selectedClass);
+					this.selectedSuggestion().classList.remove(this.options.selectedClass)
+					suggestion.classList.add(this.options.selectedClass);
 				}
 			}
 			else {
@@ -376,7 +376,7 @@ Module.AutoCompleterModule = Module.extend({
 				    suggestion = suggestions[suggestions.length - 1];
 
 				if (suggestion && suggestion.getAttribute("data-action")) {
-					utils.addClass(suggestions[suggestions.length - 1], this.options.selectedClass);
+					suggestions[suggestions.length - 1].classList.add(this.options.selectedClass);
 				}
 			}
 		},
@@ -401,23 +401,5 @@ Module.AutoCompleterModule = Module.extend({
 	}
 
 });
-
-var utils = {
-	addClass: function(element, className) {
-		element.className += (element.className ? " " : "") + className;
-	},
-
-	getClassRegex: function(className) {
-		return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
-	},
-
-	removeClass: function(element, className) {
-		var regex = this.getClassRegex(className);
-
-		element.className = element.className
-			.replace(regex, "$1$2")
-			.replace(/(^\s+|\s{2,}|\s+$)/g, "");
-	}
-};
 
 })();
