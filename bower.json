@@ -1,6 +1,6 @@
 {
 	"name": "module-manager",
-	"description": "Module Manager gives you an easy way to ...",
+	"description": "Module Manager gives you an easy way to embed metadata about controllers in an MVC application into HTML tags.",
 	"authors": [
 		"Greg Burghardt <greg_burghardt@yahoo.com>"
 	],
@@ -8,12 +8,13 @@
 	"license": "MIT",
 	"repository": { "type": "git", "url": "https://github.com/gburghardt/module-manager.git" },
 	"main": [
-		"lib/module.js",
-		"lib/module/factory.js",
-		"lib/module/manager.js",
-		"lib/module/manager/lazy_loader.js",
-		"lib/module/manager/sub_module_properties.js",
-		"lib/module/provider.js"
+		"src/module.js",
+		"src/module/factory.js",
+		"src/module/front_controller_module_observer.js",
+		"src/module/lazy_loader.js",
+		"src/module/manager.js",
+		"src/module/meta_data.js",
+		"src/module/provider.js"
 	],
 	"devDependencies": {
 		"jasmine": "~2.0"
