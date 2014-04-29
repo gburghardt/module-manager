@@ -103,12 +103,15 @@ Manager.prototype = {
 	},
 
 	eagerLoadModules: function eagerLoadModules(element) {
-		var els = element.getElementsByTagName("*"), i = 0, length = els.length, el;
+		var els = element.querySelectorAll("[data-modules]"),
+			i = 0,
+			length = els.length,
+			el;
 
 		for (i; i < els.length; i++) {
 			el = els[i];
 
-			if (el.getAttribute("data-modules") && !el.getAttribute("data-module-lazyload")) {
+			if (!el.getAttribute("data-module-lazyload")) {
 				this.createModules(el);
 			}
 		}

@@ -61,13 +61,13 @@ function LazyLoader() {
 	}
 
 	function initModulesInsideViewport() {
-		var elements = _element.getElementsByTagName("*"), i, element;
+		var elements = _element.querySelectorAll("[data-module-lazyload]"), i, element;
 		var viewport = Viewport.create(getScrollElement());
 
 		for (i = 0; i < elements.length; i++) {
 			element = elements[i];
 
-			if (element.getAttribute("data-module-lazyload") && viewport.isVisible(element)) {
+			if (viewport.isVisible(element)) {
 				lazyLoadModules(element, "scrollto");
 			}
 		}
