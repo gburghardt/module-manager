@@ -31,6 +31,7 @@ describe("Module.Provider", function() {
 
 	beforeEach(function() {
 		provider = new Module.Provider();
+		provider.moduleObserver = Module.Manager.prototype.moduleObserver;
 	});
 
 	it("does not require arguments to instantiate", function() {
@@ -69,6 +70,7 @@ describe("Module.Provider", function() {
 			factory = new TestFactory();
 			spyOn(factory, "getInstance").and.returnValue(module);
 			provider.factory = factory;
+			spyOn(provider.moduleObserver, "onModuleCreated");
 			element = document.createElement("div");
 			provider.manager = {
 				setDefaultModule: function() {}
@@ -112,6 +114,11 @@ describe("Module.Provider", function() {
 			provider.createModule(element, "test", {});
 
 			expect(provider._createSubModules).toHaveBeenCalledWith(module);
+		});
+
+		it("calls onModuleCreated on the moduleObserver", function() {
+			provider.createModule(element, "test", {});
+			expect(provider.moduleObserver.onModuleCreated).toHaveBeenCalledWith(module, element, "test");
 		});
 
 		describe("does not create sub modules if", function() {

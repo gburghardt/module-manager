@@ -6,7 +6,7 @@ Factory.prototype = {
 
 	objectFactory: null,
 
-	constructor: Module.Factory,
+	constructor: Factory,
 
 	destructor: function destructor() {
 		this.objectFactory = null;
@@ -17,30 +17,29 @@ Factory.prototype = {
 
 		if (this.objectFactory) {
 			instance = this.objectFactory.getInstance(type);
-
-			if (!instance) {
-				throw new Error("The object factory failed to get a new instance for type: " + type);
-			}
 		}
-		else if (/^[a-zA-Z][a-zA-Z0-9.]+[a-zA-Z0-9]$/.test(type)) {
-			try {
-				Klass = eval(type);
-			}
-			catch (error) {
-				throw new Error("Class name " + type + " does not exist");
-			}
 
-			if (!Klass) {
-				throw new Error("Class name " + type + " does not exist");
-			}
-			else if (typeof Klass !== "function") {
-				throw new Error("Class name " + type + " is not a constructor function");
-			}
+		if (!instance) {
+			if (/^[a-zA-Z][a-zA-Z0-9.]+[a-zA-Z0-9]$/.test(type)) {
+				try {
+					Klass = eval(type);
+				}
+				catch (error) {
+					throw new Error("Class name " + type + " does not exist");
+				}
 
-			instance = new Klass();
-		}
-		else {
-			throw new Error("Cannot instantiate invalid type: " + type);
+				if (!Klass) {
+					throw new Error("Class name " + type + " does not exist");
+				}
+				else if (typeof Klass !== "function") {
+					throw new Error("Class name " + type + " is not a constructor function");
+				}
+
+				instance = new Klass();
+			}
+			else {
+				throw new Error("Cannot instantiate invalid type: " + type);
+			}
 		}
 
 		return instance;

@@ -1,10 +1,11 @@
 {
 	"name": "module-manager",
 	"description": "Module Manager gives you an easy way to embed metadata about controllers in an MVC application into HTML tags.",
+	"homepage": "https://github.com/gburghardt/module-manager/",
 	"authors": [
 		"Greg Burghardt <greg_burghardt@yahoo.com>"
 	],
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"license": "MIT",
 	"repository": { "type": "git", "url": "https://github.com/gburghardt/module-manager.git" },
 	"main": [
@@ -17,6 +18,6 @@
 		"src/module/provider.js"
 	],
 	"devDependencies": {
-		"jasmine": "~2.0"
+		"jasmine-data_driven_tests": "~1.0.0"
 	}
 }
