@@ -104,16 +104,10 @@ Manager.prototype = {
 
 	eagerLoadModules: function eagerLoadModules(element) {
 		var els = element.querySelectorAll("[data-modules]"),
-			i = 0,
-			length = els.length,
-			el;
+			i = 0;
 
 		for (i; i < els.length; i++) {
-			el = els[i];
-
-			if (!el.getAttribute("data-module-lazyload")) {
-				this.createModules(el);
-			}
+			this.createModules(els[i]);
 		}
 
 		els = null;
@@ -145,9 +139,15 @@ Manager.prototype = {
 		return module;
 	},
 
-	createModules: function createModules(element) {
+	createModules: function createModules(element, lazyLoad) {
 		if (!element) {
 			throw new Error("Missing required argument: element");
+		}
+		else if (!lazyLoad && element.getAttribute("data-module-lazyload")) {
+			return [];
+		}
+		else if (element.getAttribute("data-module-property")) {
+			return [];
 		}
 
 		var metaData = new Module.MetaData(element),

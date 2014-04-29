@@ -123,7 +123,7 @@ describe("Module.Manager", function() {
 		});
 
 		it("does not call createModules() on elements with a data-module-lazyload attribute", function() {
-			spyOn(manager, "createModules");
+			spyOn(manager.provider, "createModules");
 
 			element.innerHTML = [
 				'<ol>',
@@ -136,7 +136,7 @@ describe("Module.Manager", function() {
 			manager.init();
 			manager.eagerLoadModules(element);
 
-			expect(manager.createModules).not.toHaveBeenCalled();
+			expect(manager.provider.createModules).not.toHaveBeenCalled();
 		});
 
 	});

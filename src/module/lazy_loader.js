@@ -77,8 +77,7 @@ function LazyLoader() {
 		var attr = element.getAttribute("data-module-lazyload");
 
 		if (attr === "any" || new RegExp(value).test(attr)) {
-
-			if (_manager.createModules(element).length) {
+			if (_manager.createModules(element, true).length) {
 				element.removeAttribute("data-module-lazyload");
 				element.setAttribute("data-module-lazyloaded", attr);
 			}
