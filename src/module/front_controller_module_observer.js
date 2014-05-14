@@ -8,10 +8,18 @@ Module.FrontControllerModuleObserver.prototype = {
 
 	constructor: Module.FrontControllerModuleObserver,
 
-	onModuleCreated: function(module, element, type) {
+	_ensureControllerId: function(module) {
 		module.controllerId = module.controllerId
 		                   || module.options.controllerId
 		                   || module.guid;
+	},
+
+	onModuleCreated: function(module, element, type) {
+		this._ensureControllerId(module);
+	},
+
+	onSubModuleCreated: function(module, element, type) {
+		this.frontController.registerController(module);
 	},
 
 	onModuleRegistered: function(module, type) {

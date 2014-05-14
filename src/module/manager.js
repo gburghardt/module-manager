@@ -12,6 +12,7 @@ Manager.prototype = {
 
 	moduleObserver: {
 		onModuleCreated: function(module, element, type) {},
+		onSubModuleCreated: function(module, element, type) {},
 		onModuleRegistered: function(module, type) {},
 		onModuleUnregistered: function(module) {}
 	},

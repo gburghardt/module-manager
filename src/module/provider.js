@@ -93,6 +93,7 @@ Provider.prototype = {
 		}
 
 		subModule = this.createModule(element, metaData.types[0], metaData.options);
+		this.moduleObserver.onSubModuleCreated(subModule, element, metaData.types[0]);
 		subModule.init();
 
 		if (parentModule[name] === null) {
