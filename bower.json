@@ -5,7 +5,7 @@
 	"authors": [
 		"Greg Burghardt <greg_burghardt@yahoo.com>"
 	],
-	"version": "1.1.5",
+	"version": "1.2.0",
 	"license": "MIT",
 	"repository": { "type": "git", "url": "https://github.com/gburghardt/module-manager.git" },
 	"main": [
@@ -17,6 +17,9 @@
 		"src/module/meta_data.js",
 		"src/module/provider.js"
 	],
+	"dependencies": {
+		"browser-viewport": "~1.0.0"
+	},
 	"devDependencies": {
 		"jasmine-data_driven_tests": "~1.0.0"
 	}

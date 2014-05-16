@@ -70,7 +70,16 @@ Module.ILazyLoader = {
 	 *
 	 * Override default options for this lazy loader.
 	 **/
-	setOptions: function(overrides) {}
+	setOptions: function(overrides) {},
+
+	/**
+	 * Module.ILazyLoader#setViewport(viewport) -> Module.ILazyLoader
+	 * - viewport (Viewport): The viewport object
+	 *
+	 * Sets the viewport property used to initialize new modules when they scroll
+	 * into view.
+	 **/
+	setViewport: function(viewport) {}
 
 };
 
@@ -87,7 +96,7 @@ Module.ILazyLoaderOptions = {
 	 * The interval in milliseconds at which the viewport dimensions are checked
 	 * in order to detect that the user has stopped resizing the browser window.
 	 **/
-	resizeTimeout: 250,
+	resizeTimeout: 0,
 
 	/**
 	 * Module.ILazyLoaderOptions#scrollTimeout -> Number
@@ -95,7 +104,7 @@ Module.ILazyLoaderOptions = {
 	 * The interval in milliseconds at which to check the scroll position on the
 	 * page in order to detect that the user has stopped scrolling.
 	 **/
-	scrollTimeout: 250
+	scrollTimeout: 0
 
 };
 

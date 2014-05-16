@@ -14,7 +14,7 @@ Provider.prototype = {
 
 	constructor: Provider,
 
-	destructor: function destructor(cascadeDestroy) {
+	destructor: function(cascadeDestroy) {
 		if (cascadeDestroy && this.factory) {
 			this.factory.destructor();
 		}
@@ -22,7 +22,7 @@ Provider.prototype = {
 		this.factory = this.manager = null;
 	},
 
-	_createModuleClass: function _createModuleClass(type) {
+	_createModuleClass: function(type) {
 		return "module " + type.charAt(0).toLowerCase() + type.slice(1, type.length)
 			.replace(/(\.[A-Z])/g, function(match, $1) {
 				return "-" + $1.replace(/\./g, "").toLowerCase();
@@ -31,7 +31,7 @@ Provider.prototype = {
 			.replace(/^\s+|\s+$/g, "");
 	},
 
-	createModule: function createModule(element, type, options) {
+	createModule: function(element, type, options) {
 		var module = this.factory.getInstance(type);
 		var className = this._createModuleClass(type);
 
@@ -53,7 +53,7 @@ Provider.prototype = {
 		return module;
 	},
 
-	createModules: function createModule(metaData, callback, context) {
+	createModules: function(metaData, callback, context) {
 		var modules = [],
 		    module,
 		    callback = callback || function() {};
@@ -69,7 +69,7 @@ Provider.prototype = {
 		return modules;
 	},
 
-	_createSubModules: function _createSubModules(module) {
+	_createSubModules: function(module) {
 		var els = module.element.getElementsByTagName("*"),
 		    length = els.length,
 		    i = 0, element, name;
@@ -84,7 +84,7 @@ Provider.prototype = {
 		}
 	},
 
-	_createSubModuleProperty: function _createSubModuleProperty(parentModule, name, element) {
+	_createSubModuleProperty: function(parentModule, name, element) {
 		var metaData = new Module.MetaData(element),
 		   subModule;
 

@@ -1,3 +1,58 @@
+/*! module-manager 2014-05-16 */
+this.Module = this.Module || {};
+(function() {
+
+function Factory() {};
+
+Factory.prototype = {
+
+	objectFactory: null,
+
+	constructor: Factory,
+
+	destructor: function() {
+		this.objectFactory = null;
+	},
+
+	getInstance: function(type) {
+		var instance = null, Klass = null;
+
+		if (this.objectFactory) {
+			instance = this.objectFactory.getInstance(type);
+		}
+
+		if (!instance) {
+			if (/^[a-zA-Z][a-zA-Z0-9.]+[a-zA-Z0-9]$/.test(type)) {
+				try {
+					Klass = eval(type);
+				}
+				catch (error) {
+					throw new Error("Class name " + type + " does not exist");
+				}
+
+				if (!Klass) {
+					throw new Error("Class name " + type + " does not exist");
+				}
+				else if (typeof Klass !== "function") {
+					throw new Error("Class name " + type + " is not a constructor function");
+				}
+
+				instance = new Klass();
+			}
+			else {
+				throw new Error("Cannot instantiate invalid type: " + type);
+			}
+		}
+
+		return instance;
+	}
+
+};
+
+Module.Factory = Factory;
+
+})();
+
 (function() {
 
 function Manager() {};
@@ -283,5 +338,203 @@ Manager.prototype = {
 };
 
 Module.Manager = Manager;
+
+})();
+
+(function(g) {
+
+	function MetaData(element) {
+		this.options = null;
+		this.types = [];
+
+		if (element) {
+			this.setElement(element);
+		}
+	}
+
+	MetaData.prototype = {
+
+		element: null,
+
+		media: null,
+
+		options: null,
+
+		types: null,
+
+		constructor: MetaData,
+
+		forEach: function(callback, context) {
+			var i = 0, length = this.types.length,
+			    result, type, options;
+
+			if (length === 1) {
+				callback.call(context, this.element, this.types[0], this.options, 0, this);
+			}
+			else {
+				for (i; i < length; ++i) {
+					type = this.types[i];
+					options = this.options[type] || {};
+					result = callback.call(context, this.element, type, options, i, this);
+
+					if (result === false) {
+						break;
+					}
+				}
+			}
+		},
+
+		mediaMatches: function() {
+			if (!g.matchMedia) {
+				throw new Error("This browser does not support JavaScript media queries. Please include a polyfill (https://github.com/paulirish/matchMedia.js)");
+			}
+
+			return this.media === null || g.matchMedia(this.media).matches;
+		},
+
+		setElement: function(element) {
+			this.element = element;
+
+			var types = element.getAttribute("data-modules"),
+			    options = element.getAttribute("data-module-options");
+
+			if (!types) {
+				throw new Error("Missing required attribute data-modules on " + element.nodeName + "." + element.className.split(/\s+/g).join(".") + "#" + element.id);
+			}
+
+			this.types = types
+				.replace(/^\s+|\s+$/g, "")
+				.split(/\s+/g);
+
+			this.options = options ? JSON.parse(options) : {};
+			this.media = element.getAttribute("data-module-media");
+		}
+
+	};
+
+	g.Module.MetaData = MetaData;
+
+})(this);
+
+(function() {
+
+function Provider() {}
+
+Provider.prototype = {
+
+	factory: null,
+
+	manager: null,
+
+	moduleObserver: null,
+
+	subModulesEnabled: true,
+
+	constructor: Provider,
+
+	destructor: function(cascadeDestroy) {
+		if (cascadeDestroy && this.factory) {
+			this.factory.destructor();
+		}
+
+		this.factory = this.manager = null;
+	},
+
+	_createModuleClass: function(type) {
+		return "module " + type.charAt(0).toLowerCase() + type.slice(1, type.length)
+			.replace(/(\.[A-Z])/g, function(match, $1) {
+				return "-" + $1.replace(/\./g, "").toLowerCase();
+			})
+			.replace(/Module$/, "")
+			.replace(/^\s+|\s+$/g, "");
+	},
+
+	createModule: function(element, type, options) {
+		var module = this.factory.getInstance(type);
+		var className = this._createModuleClass(type);
+
+		element.className += element.className ? " " + className : className;
+
+		module.setElement(element);
+		module.setOptions(options);
+
+		if (options.defaultModule) {
+			this.manager.setDefaultModule(module);
+		}
+
+		this.moduleObserver.onModuleCreated(module, element, type);
+
+		if (this.subModulesEnabled && !options.subModulesDisabled) {
+			this._createSubModules(module);
+		}
+
+		return module;
+	},
+
+	createModules: function(metaData, callback, context) {
+		var modules = [],
+		    module,
+		    callback = callback || function() {};
+
+		metaData.forEach(function(element, type, options) {
+			module = this.createModule(element, type, options);
+			modules.push(module);
+			callback.call(context, module, element, type, options);
+		}, this);
+
+		callback = context = module = null;
+
+		return modules;
+	},
+
+	_createSubModules: function(module) {
+		var els = module.element.getElementsByTagName("*"),
+		    length = els.length,
+		    i = 0, element, name;
+
+		for (i; i < length; i++) {
+			element = els[i];
+			name = element.getAttribute("data-module-property");
+
+			if (name) {
+				this._createSubModuleProperty(module, name, element);
+			}
+		}
+	},
+
+	_createSubModuleProperty: function(parentModule, name, element) {
+		var metaData = new Module.MetaData(element),
+		   subModule;
+
+		if (metaData.types.length > 1) {
+			throw new Error("Sub module elements cannot have more than one type specified in data-modules");
+		}
+
+		subModule = this.createModule(element, metaData.types[0], metaData.options);
+		this.moduleObserver.onSubModuleCreated(subModule, element, metaData.types[0]);
+		subModule.init();
+
+		if (parentModule[name] === null) {
+			parentModule[name] = subModule;
+		}
+		else if (parentModule[name] instanceof Array) {
+			if (!parentModule.hasOwnProperty(name)) {
+				parentModule[name] = [];
+			}
+
+			parentModule[name].push(subModule);
+		}
+		else {
+			throw new Error("Cannot create sub module property '" + name + "'. Property is neither null nor an Array on the parent module.");
+		}
+
+		this.manager.markModulesCreated(element, metaData);
+
+		subModule = metaData = element = null;
+	}
+
+};
+
+Module.Provider = Provider;
 
 })();

@@ -1,324 +1,131 @@
 (function() {
 
 function LazyLoader() {
+	this.handleScrollComplete = this.handleScrollComplete.bind(this);
+	this.handleResizeComplete = this.handleResizeComplete.bind(this);
+	this.handleMouseover = this.handleMouseover.bind(this);
+	this.options = {
+		resizeTimeout: 0,
+	    scrollTimeout: 0
+	};
+}
+LazyLoader.prototype = {
 
-	// Public Methods
+	document: null,
 
-	this.init = init;
-	this.destructor = destructor;
-	this.setElement = setElement;
-	this.setManager = setManager;
-	this.setOptions = setOptions;
+	element: null,
 
-	// Private Properties
+	manager: null,
 
-	var self = this,
-	    _initialized = false,
-	    _options = {
-	    	resizeTimeout: 250,
-	    	scrollTimeout: 250
-	    },
-	    _scrollElement = null,
-	    _scrollTimer = null,
-	    _manager = null,
-	    _element = null,
-	    _document = null,
-	    _window = null,
-	    _resizeTimer = null,
-	    _scrollLeft = 0,
-	    _scrollTop = 0,
-	    _viewportHeight = 0,
-	    _viewportWidth = 0;
+	options: null,
 
-	// Private Methods
+	viewport: null,
 
-	function init() {
-		if (_initialized) {
-			throw new Error("Cannot re-initialize Module.LazyLoader.");
-		}
-		else if (!_manager) {
-			throw new Error("Missing required property: manager. lazyLoader.setManager(...) to fix this error");
-		}
-		else if (!_element) {
-			throw new Error("Missing required property: element. lazyLoader.setElement(...) to fix this error");
+	window: null,
+
+	constructor: LazyLoader,
+
+	destructor: function() {
+		if (this.viewport) {
+			this.viewport.removeEventListener("scroll:complete", this.handleScrollComplete);
+			this.viewport.removeEventListener("resize:complete", this.handleResizeComplete);
+			this.viewport = null;
 		}
 
-		addEvents();
-
-		initModulesInsideViewport();
-
-		if (!_scrollElement.scrollTop && !_scrollElement.scrollLeft) {
-			// Not all browsers agree on the _scrollElement. We are at the
-			// top of the page so we don't know whether the browser is
-			// scrolling the <html> or <body> tag. Defer judgement until
-			// the user has scrolled.
-			_scrollElement = null;
+		if (this.element) {
+			this.element.removeEventListener("mouseover", this.handleMouseover, false);
+			this.element = null;
 		}
 
-		_initialized = true;
+		this.document = this.window = this.options = this.manager = null;
+	},
 
-		return self;
-	}
-
-	function initModulesInsideViewport() {
-		var elements = _element.querySelectorAll("[data-module-lazyload]"), i, element;
-		var viewport = Viewport.create(getScrollElement());
-
-		for (i = 0; i < elements.length; i++) {
-			element = elements[i];
-
-			if (viewport.isVisible(element)) {
-				lazyLoadModules(element, "scrollto");
-			}
-		}
-	}
-
-	function lazyLoadModules(element, value) {
-		var attr = element.getAttribute("data-module-lazyload");
-
-		if (attr === "any" || new RegExp(value).test(attr)) {
-			if (_manager.createModules(element, true).length) {
-				element.removeAttribute("data-module-lazyload");
-				element.setAttribute("data-module-lazyloaded", attr);
-			}
+	init: function() {
+		if (!this.viewport) {
+			this.setViewport(new Viewport(window));
 		}
 
-		element = null;
-	}
-
-	function destructor() {
-		if (_element) {
-			removeEvents();
-			_element = _document = _scrollElement = _window = null;
+		if (this.options.resizeTimeout > 0) {
+			this.viewport.resizeTimeout = this.options.resizeTimeout;
 		}
 
-		if (_scrollTimer) {
-			clearTimeout(_scrollTimer);
-			_scrollTimer = null;
+		if (this.options.scrollTimeout > 0) {
+			this.viewport.scrollTimeout = this.options.scrollTimeout;
 		}
 
-		if (_resizeTimer) {
-			clearTimeout(_resizeTimer);
-			_resizeTimer = null;
-		}
+		this.viewport.addEventListener("scroll:complete", this.handleScrollComplete);
+		this.viewport.addEventListener("resize:complete", this.handleResizeComplete);
+		this.element.addEventListener("mouseover", this.handleMouseover, false);
 
-		_manager = _options.scrollElement = _options = self = null;
-	}
+		this._initModulesInViewport();
 
-	function addEvent(element, name, listener) {
-		if (name === "resize") {
-			listener.oldresize = element.onresize || null;
-			element.onresize = listener;
-		}
-		else if (element.addEventListener) {
-			element.addEventListener(name, listener, true);
-		}
-		else if (name === "scroll") {
-			element.onscroll = listener;
-		}
-		else {
-			element.attachEvent("on" + name, listener);
-		}
-	}
+		return this;
+	},
 
-	function addEvents() {
-		addEvent(_element, "mouseover", handleMouseOverEvent);
-		addEvent(_document, "scroll", handleScrollEvent);
-		addEvent(_window, "resize", handleResizeEvent);
-	}
-
-	function getScrollElement() {
-		if (_scrollElement === null) {
-			if (_document.body.scrollTop || _document.body.scrollLeft) {
-				_scrollElement = _document.body;
-			}
-			else {
-				_scrollElement = _document.documentElement;
-			}
-		}
-
-		return _scrollElement;
-	}
-
-	function handleMouseOverEvent(event) {
+	handleMouseover: function(event) {
 		event = event || window.event;
 		event.target = event.target || event.srcElement;
 
 		if (event.target.getAttribute("data-module-lazyload")) {
-			lazyLoadModules(event.target, event.type);
+			this._lazyLoadModules(event.target, event.type);
 		}
-	}
+	},
 
-	function handleScrollEvent(event) {
-		removeEvent(_document, "scroll", handleScrollEvent);
+	handleScrollComplete: function(viewport) {
+		this._initModulesInViewport();
+	},
 
-		if (_scrollTimer) {
-			clearInterval(_scrollTimer);
+	handleResizeComplete: function(viewport) {
+		this._initModulesInViewport();
+	},
+
+	_initModulesInViewport: function() {
+		this.viewport.querySelectorAll("[data-module-lazyload]", function(element) {
+			this._lazyLoadModules(element, "scrollto");
+		}, this);
+	},
+
+	_lazyLoadModules: function(element, value) {
+		var attr = element.getAttribute("data-module-lazyload");
+
+		if (attr === "any" || new RegExp(value).test(attr)) {
+			if (this.manager.createModules(element, true).length) {
+				element.removeAttribute("data-module-lazyload");
+				element.setAttribute("data-module-lazyloaded", attr);
+			}
 		}
+	},
 
-		_scrollTimer = setInterval(checkScrollPosition, _options.scrollTimeout);
-	}
+	setElement: function(element) {
+		this.element = element;
+		this.document = element.ownerDocument;
+	    this.window = this.document.defaultView;
+		return this;
+	},
 
-	function checkScrollPosition() {
-		var scrollElement = getScrollElement(),
-		    newScrollLeft = scrollElement.scrollLeft,
-		    newScrollTop = scrollElement.scrollTop;
+	setManager: function(manager) {
+		this.manager = manager;
+		return this;
+	},
 
-		if (newScrollLeft != _scrollLeft || newScrollTop != _scrollTop) {
-			clearInterval(_scrollTimer);
-			addEvent(_document, "scroll", handleScrollEvent);
-			_scrollLeft = newScrollLeft;
-			_scrollTop = newScrollTop;
-			initModulesInsideViewport();
-		}
-	}
-
-	function handleResizeEvent(event) {
-		removeEvent(_window, "resize", handleResizeEvent);
-
-		if (_resizeTimer) {
-			clearInterval(_resizeTimer);
-		}
-
-		_resizeTimer = setInterval(checkViewportSize, _options.resizeTimeout);
-	}
-
-	function checkViewportSize() {
-		var newHeight = _document.documentElement.clientHeight,
-		    newWidth = _document.documentElement.clientWidth;
-
-		if (newWidth !== _viewportWidth || newHeight !== _viewportHeight) {
-			clearInterval(_resizeTimer);
-			addEvent(_window, "resize", handleResizeEvent);
-			_viewportHeight = newHeight;
-			_viewportWidth = newWidth;
-			initModulesInsideViewport();
-		}
-	}
-
-	function removeEvent(element, name, listener) {
-		if (name === "resize") {
-			element.onresize = listener.oldresize || null;
-			listener.oldresize = null;
-		}
-		else if (element.removeEventListener) {
-			element.removeEventListener(name, listener, true);
-		}
-		else if (name === "scroll") {
-			element.onscroll = null;
-		}
-		else {
-			element.detachEvent("on" + name, listener);
-		}
-	}
-
-	function removeEvents() {
-		removeEvent(_element, "mouseover", handleMouseOverEvent);
-		removeEvent(_document, "scroll", handleScrollEvent);
-		removeEvent(_window, "resize", handleResizeEvent);
-	}
-
-	function setElement(element) {
-		_element = element;
-		_document = _element.ownerDocument;
-	    _window = _document.defaultView;
-
-		element = null;
-
-		return self;
-	}
-
-	function setManager(manager) {
-		_manager = manager;
-		manager = null;
-		return self;
-	}
-
-	function setOptions(overrides) {
+	setOptions: function(overrides) {
 		if (overrides) {
 			for (var key in overrides) {
 				if (overrides.hasOwnProperty(key)) {
-					_options[key] = overrides[key];
+					this.options[key] = overrides[key];
 				}
 			}
 		}
 
-		overrides = null;
+		return this;
+	},
 
-		return self;
+	setViewport: function(viewport) {
+		this.viewport = viewport;
+		this.setElement(viewport.document.documentElement);
+		return this;
 	}
 
-}
-
-// Internal class for viewport calculations
-function Viewport() {}
-
-Viewport.prototype = {
-	bottom: 0,
-	height: 0,
-	left: 0,
-	right: 0,
-	top: 0,
-	width: 0,
-
-	constructor: Viewport,
-
-	isBottomInBounds: function isBottomInBounds(position) {
-		return (position.top + position.height <= this.top + this.height && position.top + position.height > this.top) ? true : false;
-	},
-
-	isLeftInBounds: function isLeftInBounds(position) {
-		return (position.left >= this.left && position.left < this.left + this.width) ? true : false;
-	},
-
-	isRightInBounds: function isRightInBounds(position) {
-		return (position.left + position.width <= this.left + this.width && position.left + position.width > this.left) ? true : false;
-	},
-
-	isTopInBounds: function isTopInBounds(position) {
-		return (position.top >= this.top && position.top < this.top + this.height) ? true : false;
-	},
-
-	isVisible: function isVisible(element) {
-		var visible = false;
-		var position = this._getPosition(element);
-
-		if ((this.isRightInBounds(position) || this.isLeftInBounds(position)) && (this.isTopInBounds(position) || this.isBottomInBounds(position))) {
-			visible = true;
-		}
-
-		return visible;
-	},
-
-	_getPosition: function _getPosition(element) {
-		var parent = element.offsetParent;
-		var position = {
-			top: element.offsetTop,
-			left: element.offsetLeft,
-			width: element.offsetWidth,
-			height: element.offsetHeight
-		};
-
-		while(parent = parent.offsetParent) {
-			position.top += parent.offsetTop;
-			position.left += parent.offsetLeft;
-		}
-
-		return position;
-	}
-};
-
-Viewport.create = function create(element) {
-	var viewport = new this();
-
-	viewport.top = element.scrollTop;
-	viewport.left = element.scrollLeft;
-	viewport.width = element.clientWidth;
-	viewport.height = element.clientHeight;
-	viewport.right = element.offsetWidth - (viewport.left + viewport.width);
-	viewport.bottom = element.offsetHeight - viewport.top - viewport.height;
-
-	return viewport;
 };
 
 Module.LazyLoader = LazyLoader;

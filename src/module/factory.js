@@ -8,11 +8,11 @@ Factory.prototype = {
 
 	constructor: Factory,
 
-	destructor: function destructor() {
+	destructor: function() {
 		this.objectFactory = null;
 	},
 
-	getInstance: function getInstance(type) {
+	getInstance: function(type) {
 		var instance = null, Klass = null;
 
 		if (this.objectFactory) {

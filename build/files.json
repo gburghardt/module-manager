@@ -1,0 +1,16 @@
+{
+	"main": [
+		"src/module.js",
+		"src/module/factory.js",
+		"src/module/manager.js",
+		"src/module/meta_data.js",
+		"src/module/provider.js"
+	],
+	"observer": [
+		"src/module/front_controller_module_observer.js"
+	],
+	"lazy-loader": [
+		"bower_components/browser-viewport/dist/browser-viewport.concat.js",
+		"src/module/lazy_loader.js"
+	]
+}

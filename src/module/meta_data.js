@@ -21,7 +21,7 @@
 
 		constructor: MetaData,
 
-		forEach: function forEach(callback, context) {
+		forEach: function(callback, context) {
 			var i = 0, length = this.types.length,
 			    result, type, options;
 
@@ -41,18 +41,15 @@
 			}
 		},
 
-		mediaMatches: function mediaMatches() {
+		mediaMatches: function() {
 			if (!g.matchMedia) {
 				throw new Error("This browser does not support JavaScript media queries. Please include a polyfill (https://github.com/paulirish/matchMedia.js)");
 			}
 
-			if (this.media)
-				console.info("Match media: " + this.media, g.matchMedia(this.media).matches);
-
 			return this.media === null || g.matchMedia(this.media).matches;
 		},
 
-		setElement: function setElement(element) {
+		setElement: function(element) {
 			this.element = element;
 
 			var types = element.getAttribute("data-modules"),
